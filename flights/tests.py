@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase,Client
 from .models import Airport 
 from .models import Flight 
 
@@ -40,5 +40,22 @@ class ModelsTestCase(TestCase):
         f = Flight.objects.get(origin=a1,destination= a2,duration=-100)
         self.assertFalse(f.is_valid_flight())
 
+    def test_index(self):
+        c = Client()
+        response = c.get("/")
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.context["flights"].count(),3)
 
- 
+    def test_valid_flight_page(self):
+        a1 = Airport.objects.get(code = "AAA")
+        f =  Flight.objects.get(origin = a1, destination = a1)
+        c = Client()
+        response = c.get(f"/{f.id}")
+        self.assertEqual(response.status_code,200)
+
+   #def test_invalid_flight(self):
+    #    max_id = Flight.objects.all().aggregate(Max("id")["id_max"])
+     #   c = Client()
+      #  response = c.get(f"/{max_id +1}")
+       # self.assertEqual(response.status_code,404)
+
